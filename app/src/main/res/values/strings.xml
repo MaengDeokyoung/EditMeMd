@@ -7,4 +7,5 @@
     <string name="username_or_email">Username or Email</string>
     <string name="password">Password</string>
     <string name="git_information">Git Information</string>
+    <string name="add_text">Add</string>
 </resources>

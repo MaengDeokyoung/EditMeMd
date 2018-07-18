@@ -6,15 +6,17 @@ import android.app.FragmentTransaction
 import android.content.pm.PackageManager
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Environment.*
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.view.Menu
+import android.view.MenuItem
+import com.landkid.editmemd.RegisterFragment.OnNextButtonClickListener
 import kotlinx.android.synthetic.main.activity_main.*
-import java.io.File
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnNextButtonClickListener, ProjectFragment.OnProjectItemClickListener{
 
-    val APP_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 20
+    private val APP_PERMISSIONS_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE = 20
+    private var registerFragment: RegisterFragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,12 +24,11 @@ class MainActivity : AppCompatActivity() {
 
         getAuthority()
 
-        setSupportActionBar(toolbar);
-
-        val signInFragment = SignInFragment.newInstance()
+        setSupportActionBar(toolbar)
 
         fragmentManager.inTransaction {
-            add(R.id.fragment_content, signInFragment)
+            val projectFragment: ProjectFragment? = ProjectFragment.newInstance()
+            replace(R.id.fragment_content, projectFragment)
         }
 
     }
@@ -37,30 +38,57 @@ class MainActivity : AppCompatActivity() {
         fragmentTransaction.func().commit()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        val id = item!!.itemId
+
+        //noinspection SimplifiableIfStatement
+        return if (id == R.id.add_repository) {
+
+            if(registerFragment == null) {
+                registerFragment = RegisterFragment.newInstance()
+
+                fragmentManager.inTransaction {
+
+                    addToBackStack("SignIn")
+                            .add(R.id.fragment_content, registerFragment)
+                }
+            }
+
+            true
+        } else super.onOptionsItemSelected(item)
+
+    }
+
+    override fun onButtonClick() {
+        if(registerFragment != null) {
+
+            if (fragmentManager.backStackEntryCount > 0) {
+                fragmentManager.popBackStackImmediate()
+                registerFragment = null
+            }
+
+        }
+    }
+
     private fun getAuthority() {
         if (ContextCompat.checkSelfPermission(this,
                         Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
 
-            // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                             Manifest.permission.READ_EXTERNAL_STORAGE)) {
 
-                // Show an expanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
             } else {
 
-                // No explanation needed, we can request the permission.
-
                 ActivityCompat.requestPermissions(this,
-                        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                        APP_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
+                        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                        APP_PERMISSIONS_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE);
             }
         }
     }
@@ -68,7 +96,7 @@ class MainActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
-            APP_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE -> {
+            APP_PERMISSIONS_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE -> {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
@@ -82,7 +110,27 @@ class MainActivity : AppCompatActivity() {
                 }
                 return
             }
+
         }// other 'case' lines to check for other
         // permissions this app might request
+    }
+
+    override fun onBackPressed() {
+        if(fragmentManager.backStackEntryCount > 0) {
+            fragmentManager.popBackStack()
+            registerFragment = null
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    override fun onItemClick(url: String) {
+
+        val markDownFragment = MarkDownFragment.newInstance(url)
+
+        fragmentManager.inTransaction {
+            addToBackStack("MarkDown")
+                    .add(R.id.fragment_content, markDownFragment)
+        }
     }
 }
