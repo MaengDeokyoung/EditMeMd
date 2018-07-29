@@ -15,12 +15,16 @@ import kotlinx.android.synthetic.main.fragment_register.*
 import java.io.File
 import android.content.ClipData
 import android.text.Editable
+import mu.KotlinLogging
 
 
 class RegisterFragment : Fragment() {
 
     val gitUtil = null;
     private var mListener: OnNextButtonClickListener? = null
+    private val logger = KotlinLogging.logger {}
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +48,10 @@ class RegisterFragment : Fragment() {
 
 // Gets the clipboard as text.
         val pasteData = item.text
-        git_address.setText(pasteData)
+
+        if (pasteData.endsWith(".git")) {
+            git_address.setText(pasteData)
+        }
         password.setOnEditorActionListener { v, actionId, event -> keyDown(v, actionId, event)}
     }
 
@@ -58,15 +65,26 @@ class RegisterFragment : Fragment() {
 
     private fun gitClone() {
 
-        val filePath = Environment.getExternalStorageDirectory().absolutePath + "/EditMeMd"
-        val file = File(filePath)
+        //val filePath = Environment.getExternalStorageDirectory().absolutePath + "/EditMeMd"
+        //val file = File(filePath)
 
         val username = username.text.toString()
         val password = password.text.toString()
         val gitRepositoryURL = git_address.text.toString()
-        GitUtil(username, password).cloneRemote(gitRepositoryURL, file)
+        val result = GitUtil(username, password, gitRepositoryURL, context.filesDir).cloneRemote()
+        val success = result.second
+        if(success){
+            val path  = result.first
 
+            logger.info { "git cloned path : $path"}
+        }else{
+            val msg = result.first
+            logger.error { "git clone failed : $msg"}
+            //show msg to the screen
+
+        }
         onButtonPressed()
+
     }
 
 

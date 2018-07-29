@@ -13,6 +13,9 @@ import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_project.*
 import kotlinx.android.synthetic.main.item_project.view.*
+import mu.KLogger
+import mu.KLogging
+import mu.KotlinLogging
 import java.io.*
 
 
@@ -25,6 +28,8 @@ class ProjectFragment : Fragment() {
     private var mListener: OnProjectItemClickListener? = null
 
 
+    private val logger = KotlinLogging.logger {}
+
     companion object {
         fun newInstance(): ProjectFragment {
             return ProjectFragment()
@@ -33,7 +38,11 @@ class ProjectFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        filePath = getExternalStorageDirectory().absolutePath + "/EditMeMd"
+        //filePath = getExternalStorageDirectory().absolutePath + "/EditMeMd"
+        filePath = context.filesDir.absolutePath
+
+        logger.info { "Check $filePath "}
+
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -41,7 +50,6 @@ class ProjectFragment : Fragment() {
 
         return inflater.inflate(R.layout.fragment_project, container, false)
     }
-
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

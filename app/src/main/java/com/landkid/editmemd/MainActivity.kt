@@ -12,11 +12,15 @@ import android.view.Menu
 import android.view.MenuItem
 import com.landkid.editmemd.RegisterFragment.OnNextButtonClickListener
 import kotlinx.android.synthetic.main.activity_main.*
+import mu.KotlinLogging
 
 class MainActivity : AppCompatActivity(), OnNextButtonClickListener, ProjectFragment.OnProjectItemClickListener{
 
+    //Hey, what if there's no external storage?
     private val APP_PERMISSIONS_REQUEST_READ_AND_WRITE_EXTERNAL_STORAGE = 20
     private var registerFragment: RegisterFragment? = null
+
+    private val logger = KotlinLogging.logger {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

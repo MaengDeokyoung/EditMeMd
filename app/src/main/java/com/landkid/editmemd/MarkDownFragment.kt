@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.fragment_mark_down.*
+import mu.KotlinLogging
 import java.io.*
 
 
@@ -17,6 +18,9 @@ import java.io.*
 class MarkDownFragment : Fragment() {
 
     private var paramsUrl: String? = null
+
+    private val logger = KotlinLogging.logger {}
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,6 +77,8 @@ class MarkDownFragment : Fragment() {
 
     @Throws(Exception::class)
     fun getStringFromFile(filePath: String): String {
+
+        logger.info { "Check $filePath "}
         val fl = File(filePath)
         val fin = FileInputStream(fl)
         val ret = convertStreamToString(fin)
