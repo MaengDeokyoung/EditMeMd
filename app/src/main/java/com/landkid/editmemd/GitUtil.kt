@@ -1,23 +1,17 @@
 package com.landkid.editmemd
 
-import android.util.Log
 import org.eclipse.jgit.api.Git
 import java.io.File
 import java.util.*
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
-import org.eclipse.jgit.transport.URIish
 import org.eclipse.jgit.internal.storage.file.FileRepository
-import org.eclipse.jgit.transport.RemoteConfig
-import android.provider.SyncStateContract.Helpers.update
-import org.eclipse.jgit.api.CommitCommand
-import org.eclipse.jgit.api.CloneCommand
-import org.eclipse.jgit.api.AddCommand
 
+import mu.KLogging
 
 class GitUtil {
-    private val TAG = "GitUtil"
 
     private val cp: UsernamePasswordCredentialsProvider
+    companion object: KLogging()
 
     constructor(id:String, pw:String){
         this.cp = UsernamePasswordCredentialsProvider(id, pw)
@@ -31,9 +25,10 @@ class GitUtil {
         val file =  File(localStorage, repositoryName)
 
         file.deleteRecursively()
+        file.mkdir()
 
-        Log.v(TAG, "File = "+ file)
-        Log.v(TAG, "isDir = "+  file.isDirectory )
+        logger.info("File = "+ file)
+        logger.info("isDir = "+  file.isDirectory )
 
         Git.cloneRepository()
                 .setURI(remoteRepository)
@@ -48,7 +43,7 @@ class GitUtil {
 
         val file =  File(localStorage, repositoryName)
 
-        Log.v(TAG, "Files = "+ Arrays.toString(file.listFiles()))
+        logger.info("Files = "+ Arrays.toString(file.listFiles()))
 
 
         return file.listFiles()
@@ -65,7 +60,7 @@ class GitUtil {
         val db = FileRepository(File(localStorage, "$repositoryName/.git"))
         val git = Git(db)
 
-        Log.v(TAG, "workTree: "+ db.workTree)
+        logger.info("workTree: "+ db.workTree)
 
 
         // run the add-call
